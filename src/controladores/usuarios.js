@@ -16,7 +16,7 @@ const cadastrarUsuario = async (req, res) => {
             return res.status(400).json({mensagem:'Telefone existente!'})
          }
 
-        const senhaCriptografada = await bcrypt.hash(senha, 11)
+        const senhaCriptografada = await bcrypt.hash(senha, 10)
         
        const query = `
        insert into cliente(nome, email,telefone, senha)
