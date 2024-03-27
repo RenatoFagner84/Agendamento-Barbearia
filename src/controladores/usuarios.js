@@ -4,16 +4,19 @@ const jwt = require('jsonwebtoken')
 const senhaJWT = require('../senhaJWT')
 
 const cadastrarUsuario = async (req, res) => {
-    const { nome, email,telefone, senha } = req.body
+    const { nome, email,telefone,senha } = req.body
+
+    if(!email || telefone > 1){
+        return res.status(400).json({mensagem:'Usuário já cadastrado.'})
+    }
 
     try {
    
-
         const senhaCriptografada = await bcrypt.hash(senha, 10)
         
        const query = `
        insert into cliente(nome, email,telefone, senha)
-       values($1, $2, $3, $4) returning *
+       values($1, $2, $3,$4) returning *
        `
        const { rows } = await pool.query(query, [nome, email, telefone, senhaCriptografada])
        const { senha: _, ...usuario } = rows[0]
