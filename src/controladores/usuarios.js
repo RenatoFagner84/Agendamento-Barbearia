@@ -4,31 +4,26 @@ const jwt = require('jsonwebtoken')
 const senhaJWT = require('../senhaJWT')
 
 const cadastrarUsuario = async (req, res) => {
-    const { nome, email,telefone, senha } = req.body
+    const { nome, email,telefone,senha } = req.body
+
+    if(!email || telefone > 1){
+        return res.status(400).json({mensagem:'Usuário já cadastrado.'})
+    }
 
     try {
-        const emailExiste = await pool.query('select * from cliente where email = $1', [email])
-         if(emailExiste.rowCount > 0){
-            return res.status(400).json({mensagem:'Email existente!'})
-         }
-         const telefoneExiste = await pool.query('select * from cliente where telefone = $1', [telefone])
-         if(telefoneExiste.rowCount > 0){
-            return res.status(400).json({mensagem:'Telefone existente!'})
-         }
-
-        const senhaCriptografada = await bcrypt.hash(senha, 11)
+   
+        const senhaCriptografada = await bcrypt.hash(senha, 10)
         
        const query = `
        insert into cliente(nome, email,telefone, senha)
-       values($1, $2, $3, $4) returning *
+       values($1, $2, $3,$4) returning *
        `
        const { rows } = await pool.query(query, [nome, email, telefone, senhaCriptografada])
        const { senha: _, ...usuario } = rows[0]
        return res.status(201).json(usuario)
        
     } catch (error) {
-        console.log(error)
-
+    
         return res.status(500).json({ mensagem: 'Erro interno no servidor' })
 
     }

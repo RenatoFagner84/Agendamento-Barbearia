@@ -1,5 +1,9 @@
 # Agendamento-Barbearia
 Barbearia
+=======
+                                         #Barbearia#
+
+>>>>>>> teste
 Bem-vindo ao nosso aplicativo de agendamento de barbearia! Este aplicativo foi projetado para tornar o agendamento de serviços de barbearia rápido, simples e conveniente para os nossos clientes. Aqui estão algumas informações importantes para começar:
 
 Funcionalidades
