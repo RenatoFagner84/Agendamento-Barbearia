@@ -52,7 +52,7 @@ const login = async (req, res) => {
         const token = jwt.sign({ id: usuario.id }, senhaJWT, { expiresIn: '8h' })
         return res.json({ usuario, token });
     } catch (error) {
-        console.error(error)
+      
         return res.status(500).json({ mensagem: 'Erro interno no servidor' })
     }
 }
