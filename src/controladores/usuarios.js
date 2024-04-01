@@ -12,6 +12,10 @@ const cadastrarUsuario = async (req, res) => {
         if (emailExistente.rowCount > 0) {
             return res.status(400).json({ mensagem: 'Email já cadastrado.' })
         }
+        const telefoneExistente = await pool.query('SELECT * FROM cliente WHERE telefone = $1', [telefone])
+        if (telefoneExistente.rowCount > 0) {
+            return res.status(400).json({ mensagem: 'telefone já cadastrado.' })
+        }
 
         const senhaCriptografada = await bcrypt.hash(senha, 10)
 
