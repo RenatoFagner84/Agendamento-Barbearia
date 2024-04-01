@@ -21,35 +21,35 @@ const cadastrarUsuario = async (req, res) => {
             RETURNING id, nome, email, telefone
         `;
         const { rows } = await pool.query(query, [nome, email, telefone, senhaCriptografada]);
-        const usuario = rows[0];
-        return res.status(201).json(usuario);
+        const usuario = rows[0]
+        return res.status(201).json(usuario)
     } catch (error) {
         console.error(error);
-        return res.status(500).json({ mensagem: 'Erro interno no servidor' });
+        return res.status(500).json({ mensagem: 'Erro interno no servidor' })
     }
 }
 
 const login = async (req, res) => {
-    const { email, senha } = req.body;
+    const { email, senha } = req.body
 
     try {
-        const { rows, rowCount } = await pool.query('SELECT * FROM cliente WHERE email = $1', [email]);
+        const { rows, rowCount } = await pool.query('SELECT * FROM cliente WHERE email = $1', [email])
         if (rowCount === 0) {
-            return res.status(400).json({ mensagem: 'Email ou senha inválidos!' });
+            return res.status(400).json({ mensagem: 'Email ou senha inválidos!' })
         }
 
         const { senha: senhaUsuario, ...usuario } = rows[0];
-        const senhaCorreta = await bcrypt.compare(senha, senhaUsuario);
+        const senhaCorreta = await bcrypt.compare(senha, senhaUsuario)
 
         if (!senhaCorreta) {
-            return res.status(400).json({ mensagem: 'Email ou senha inválidos!' });
+            return res.status(400).json({ mensagem: 'Email ou senha inválidos!' })
         }
 
-        const token = jwt.sign({ id: usuario.id }, senhaJWT, { expiresIn: '8h' });
+        const token = jwt.sign({ id: usuario.id }, senhaJWT, { expiresIn: '8h' })
         return res.json({ usuario, token });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ mensagem: 'Erro interno no servidor' });
+        console.error(error)
+        return res.status(500).json({ mensagem: 'Erro interno no servidor' })
     }
 }
 
@@ -57,9 +57,9 @@ const agendarServico = async (req, res) => {
     const { user_Id, servico_id, horario } = req.body;
 
     try {
-        const usuarioExistente = await pool.query('SELECT * FROM cliente WHERE id = $1', [user_Id]);
+        const usuarioExistente = await pool.query('SELECT * FROM cliente WHERE id = $1', [user_Id])
         if (usuarioExistente.rowCount === 0) {
-            return res.status(404).json({ mensagem: 'Usuário não encontrado.' });
+            return res.status(404).json({ mensagem: 'Usuário não encontrado.' })
         }
 
         
@@ -78,23 +78,25 @@ const agendarServico = async (req, res) => {
 }
 
 const visualizarDisponibilidade = async (req, res) => {
-    const { servico } = req.params;
+    const { servico } = req.query
 
     try {
         const query = `
-            SELECT horario FROM agendamentos
-            WHERE servico = $1
-            AND horario > NOW()
-            ORDER BY horario
+            SELECT data_hora FROM agendamentos
+            WHERE servico_id = (SELECT id FROM servicos WHERE nome = $1)
+            AND data_hora > NOW()
+            ORDER BY data_hora
         `;
         const { rows } = await pool.query(query, [servico])
-        const horariosDisponiveis = rows.map(row => row.horario)
+        const horariosDisponiveis = rows.map(row => row.data_hora)
         return res.json(horariosDisponiveis)
     } catch (error) {
         console.error(error)
         return res.status(500).json({ mensagem: 'Erro interno no servidor' })
     }
 }
+
+
 
 const gerenciarAgendamentos = async (req, res) => {
     const { userId } = req.params
@@ -103,7 +105,7 @@ const gerenciarAgendamentos = async (req, res) => {
         const query = `
             SELECT * FROM agendamentos
             WHERE cliente_id = $1
-            ORDER BY horario
+            ORDER BY data_hora
         `;
         const { rows } = await pool.query(query, [userId])
         const agendamentos = rows
